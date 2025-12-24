@@ -14,6 +14,9 @@ const registerUser = async (req, res) => {
             }
             return res.status(400).json("El usuario ya existe")
         }
+        if(user.videogames && user.videogames.length > 0) {
+            user.videogames = [...new Set(user.videogames.map(id => id.toString()))]
+        }
         user.role = "user"
         if (req.file) {
             user.img = req.file.path;
@@ -112,10 +115,49 @@ const updateUserRol = async (req, res) => {
 }
 
 
+
+
+const addGameToUser = async (req, res) => {
+    try {
+        const { videogames } = req.body
+        const userId = req.user._id
+        const userUpdated = await User.findByIdAndUpdate(
+            userId,
+            { $addToSet: { videogames: videogames}}, {new: true}
+        ).populate("videogames")
+        if (!userUpdated){
+            return res.status(404).json("Usuario no encontrado")
+        }
+        return res.status(200).json({mensaje: "Videojuego añadido", usuario: userUpdated})
+    } catch (error) {
+        return res.status(500).json({error: "Error al añadir el juego", detalle: error.message})
+    }
+}
+
+
+const deleteGameToUser = async (req, res) => {
+    try {
+        const { videogames } = req.body
+        const userId = req.user._id
+        const userUpdated = await User.findByIdAndUpdate(
+            userId,
+            { $pull: { videogames: videogames}}, {new: true}
+        ).populate("videogames")
+        if (!userUpdated){
+            return res.status(404).json("Usuario no encontrado")
+        }
+        return res.status(200).json({mensaje: "Videojuego borrado", usuario: userUpdated})
+    } catch (error) {
+        return res.status(500).json({error: "Error al borrar el juego", detalle: error.message})
+    }
+}
+
 module.exports = {
     registerUser,
     loginUser,
     getUsers,
     deleteUser,
-    updateUserRol
+    updateUserRol,
+    addGameToUser,
+    deleteGameToUser
 }
