@@ -6,7 +6,9 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "vGseed": "node ./src/utils/videogames.seed.js"
+    "vGseed": "node ./src/utils/videogames.seed.js",
+    "uSseed": "node ./src/utils/users.seed.js",
+    "allSeeds": "npm run vGseed && npm run uSseed"
   },
   "repository": {
     "type": "git",

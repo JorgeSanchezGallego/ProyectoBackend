@@ -35,6 +35,13 @@ const createVideogame = async (req, res) => {
         const videogameDB = await newVideogame.save();
         res.status(200).json(videogameDB)
     } catch (error) {
+        if (req.file && req.file.path){
+            deleteImgCloudinary(req.file.path)
+        }
+
+        if (error.code === 11000){
+            return res.status(409).json({error: "Juego duplicado", detalle: error.message})
+        }
         res.status(400).json({error: "Error al crear el videojuego", detalles: error.message})
     }
 }
@@ -130,9 +137,19 @@ const bulkCreateVideogames = async (req, res) => {
         if (!Array.isArray(videogames) || videogames.length === 0) {
             return res.status(400).json({error: "Debes enviar un array de videojuegos"})
         }
-        const uploaded = await Videogame.insertMany(videogames)
+        const uploaded = await Videogame.insertMany(videogames, {ordered:false})
         res.status(201).json({cantidad: uploaded.length, videogames: uploaded})
     } catch (error) {
+        if (error.code === 11000 || error.writeErrors) {
+            const guardados = error.insertedDocs || []
+            const fallidos = error.writeErrors?.length || 0
+            return res.status(201).json({ 
+                mensaje: "Proceso finalizado con algunos duplicados omitidos",
+                guardados: guardados.length,
+                duplicados_omitidos: fallidos,
+                juegos_guardados: guardados
+            })
+        }
         res.status(400).json({error: "Error al insertar varios videojuegos", detalle: error.message})
     }
 }

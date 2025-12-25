@@ -4,7 +4,7 @@ const Schema = mongoose.Schema
 
 const videogameSchema = new Schema(
     {
-        title: {type: String, required: true, trim: true},
+        title: {type: String, required: true, trim: true, unique: true},
         developer: {type: String, required: true, trim: true},
         year: {type: Number, min: 1980, max: 2030, required: true},
         genre: {

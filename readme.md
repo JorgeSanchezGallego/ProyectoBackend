@@ -1,105 +1,136 @@
-# Proyecto 1 - Backend: API REST de Usuarios y Videojuegos 🎮
+# 🎮 API REST: Plataforma de Gestión de Videojuegos
 
-**Alumno:** Jorge Sánchez  
-**Profesor:** Antonio Rosales  
-**Curso:** Desarrollo de Aplicaciones Web - Módulo Backend
+![NodeJS](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white) ![Express.js](https://img.shields.io/badge/Express.js-404D59?style=for-the-badge) ![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white) ![Cloudinary](https://img.shields.io/badge/Cloudinary-3448C5?style=for-the-badge&logo=cloudinary&logoColor=white)
 
-## 📋 Descripción del Proyecto
+**Proyecto Backend | Máster en Desarrollo Web**
 
-Este proyecto consiste en el desarrollo de una API REST completa utilizando **Node.js, Express y MongoDB**. El objetivo principal es aplicar los conocimientos adquiridos sobre servidores, bases de datos no relacionales, autenticación y gestión de archivos en la nube.
+* **Alumno:** Jorge Sánchez
+* **Profesor:** Antonio Rosales
+* **Repositorio:** [GitHub Link](https://github.com/JorgeSanchezGallego/ProyectoBackend)
 
-La temática elegida es una **plataforma de gestión de videojuegos**, donde los usuarios pueden registrarse, gestionar su perfil y mantener una lista de videojuegos que han jugado (relación de datos).
+## 📋 Descripción
 
-## 🛠️ Tecnologías Utilizadas
+Este proyecto es una API RESTful completa desarrollada con **Node.js y Express**. Simula el backend de una aplicación social de videojuegos donde los usuarios pueden registrarse, gestionar su perfil y administrar una colección de videojuegos jugados.
 
-* **Entorno:** Node.js
+El sistema cuenta con autenticación segura, roles de usuario, subida de imágenes a la nube y una base de datos NoSQL robusta.
+
+## 🛠️ Stack Tecnológico
+
+Las tecnologías principales y dependencias utilizadas son:
+
+* **Entorno (Runtime):** Node.js
 * **Framework:** Express.js
-* **Base de Datos:** MongoDB Atlas (Mongoose ODM)
-* **Autenticación:** JSON Web Tokens (JWT) & Bcrypt
+* **Base de Datos:** MongoDB (con Mongoose ODM)
+* **Seguridad:** Bcrypt & JSON Web Tokens (JWT)
 * **Gestión de Archivos:** Cloudinary + Multer
-* **Variables de entorno:** Dotenv
+* **Utilidades:** Dotenv, Nodemon
 
-## 🚀 Instalación y Puesta en Marcha
+## ✅ Cumplimiento de Requisitos
+
+| Requisito | Estado | Implementación |
+| :--- | :---: | :--- |
+| **2 Modelos Mínimo** | ✅ | Modelos `User` y `Videogame`. |
+| **1 Relación Mínimo** | ✅ | Relación 1:N (Un usuario tiene muchos videojuegos). |
+| **Roles y Permisos** | ✅ | Roles `admin` y `user` gestionados con Middleware. |
+| **Auth Middleware** | ✅ | Autenticación vía Token JWT (`isAuth`, `isAdmin`). |
+| **Cloudinary** | ✅ | Subida con `multer` y borrado automático en cascada. |
+| **Semillas (Seeds)** | ✅ | Script `allSeeds` para poblar juegos y usuarios. |
+| **Evitar Duplicados** | ✅ | Uso de `$addToSet` en arrays y `unique` en emails. |
+| **CRUD Completo** | ✅ | Implementado en ambas colecciones. |
+
+## 🚀 Instalación y Scripts
 
 Sigue estos pasos para levantar el proyecto en local:
 
-1.  **Clonar el repositorio:**
-    ```bash
-    git clone <URL_DE_TU_REPOSITORIO>
-    cd <NOMBRE_DE_LA_CARPETA>
-    ```
-
-2.  **Instalar dependencias:**
+1.  **Instalar dependencias:**
     ```bash
     npm install
     ```
 
-3.  **Configurar variables de entorno:**
-    El archivo `.env` se incluye en la entrega por requerimientos escolares. Asegúrate de que contenga las credenciales correctas de MongoDB y Cloudinary.
-
-4.  **Cargar datos iniciales (Seed):**
-    Para poblar la base de datos con videojuegos iniciales, ejecuta:
-    ```bash
-    npm run seed
+2.  **Configuración de Entorno (.env):**
+    Crea un archivo `.env` en la raíz con las siguientes variables:
+    ```text
+    DB_URL=mongodb+srv://...
+    JWT_SECRET=tu_secreto_seguro
+    CLOUDINARY_CLOUD_NAME=...
+    CLOUDINARY_API_KEY=...
+    CLOUDINARY_API_SECRET=...
     ```
 
-5.  **Arrancar el servidor:**
+3.  **🌱 Carga de Datos (Seeding):**
+    El proyecto incluye scripts automatizados para limpiar y poblar la base de datos de forma secuencial (primero juegos, luego usuarios).
     ```bash
-    npm run dev
+    npm run allSeeds # Usa script uSseed y vGseed
+    ```
+    *(Este comando ejecuta `vGseed` y `uSseed` en cadena).*
+
+4.  **Ejecución:**
+    ```bash
+    npm run dev  # Modo desarrollo con Nodemon
+    npm start    # Modo producción
     ```
 
-## 🗄️ Modelo de Datos
+## 🗄️ Modelos de Datos
 
-Se han implementado dos modelos principales con una relación **1:N** (Un usuario tiene muchos juegos jugados).
+### 1. User (Usuario)
+* **Roles:** `admin` o `user` (por defecto).
+* **Seguridad:** Contraseñas encriptadas mediante `bcrypt` antes de guardar (`pre-save hook`).
+* **Relación:** Contiene un array `videogames` con referencias (`ObjectId`) a los juegos.
+* **Imágenes:** Campo `img` alojado en la carpeta `Users` de Cloudinary.
 
-### 1. Modelo `Game` (Videojuego)
-Utilizado para la colección de juegos disponibles.
-* **Campos:** `title`, `genre`, `developer`, `year`, `platform`.
+### 2. Videogame (Videojuego)
+* **Datos:** Título, desarrollador, año, género, plataforma y rating.
+* **Validaciones:** Año entre 1980-2030, Rating 0-10.
+* **Imágenes:** Campo `img` alojado en la carpeta `Videogames` de Cloudinary.
 
-### 2. Modelo `User` (Usuario)
-Incluye la lógica de negocio compleja.
-* **Datos:** `email` (único), `password` (encriptada), `image` (URL Cloudinary).
-* **Roles:** `user` (por defecto) y `admin`.
-* **Relación:** `playedGames` -> Array de ObjectIds referenciando al modelo `Game`.
-    * *Integridad:* Se evita la duplicidad de juegos en el array usando `$addToSet`.
+## ⚙️ Funcionalidades Clave
 
-## ⚙️ Funcionalidades Clave y Requisitos Cumplidos
+### 🔐 Seguridad y Auth
+* **JWT Middleware:** Middleware `isAuth` para proteger rutas privadas y validar el token Bearer.
+* **Admin Middleware:** Middleware `isAdmin` para operaciones críticas (ver listado de usuarios, cambiar roles).
 
-### 🔐 Autenticación y Seguridad
-* Registro de usuarios con hasheo de contraseñas (Bcrypt).
-* Login con generación de Token (JWT).
-* Middleware de autorización (`isAuth`) para proteger rutas.
+### ☁️ Gestión de Imágenes
+* **Subida:** Integración con Cloudinary mediante `multer` en el registro de usuarios y creación de juegos.
+* **Limpieza Automática:** Al borrar un videojuego o eliminar un usuario de la base de datos, el sistema detecta la URL de la imagen y **la elimina físicamente de Cloudinary** para no dejar archivos basura en la nube.
 
-### 👥 Gestión de Roles
-* **User:** Rol por defecto. Puede ver datos y gestionar su propia cuenta.
-* **Admin:** Puede ver todos los usuarios y eliminar cualquier cuenta.
-* **Lógica de Promoción:** Solo un administrador puede promover a otro usuario a administrador.
+### 🎮 Gestión de la Colección
+* **Añadir Juegos:** Uso de `$addToSet` para evitar duplicados en la lista del usuario.
+* **Borrar Juegos:** Uso de `$pull` para eliminar juegos de la lista personal sin afectar a la colección global.
 
-### ☁️ Gestión de Imágenes (Cloudinary)
-* Subida de imagen obligatoria al registrarse mediante `multer`.
-* **Borrado en cascada:** Al eliminar un usuario (ya sea por sí mismo o por un admin), el servidor conecta con Cloudinary y elimina la imagen asociada para no dejar archivos basura en la nube.
+## 📡 Documentación de Endpoints
 
-### 🗑️ Eliminación de Cuentas
-Se implementa una lógica estricta de permisos:
-1.  Un usuario puede eliminar **su propia** cuenta.
-2.  Un admin puede eliminar **cualquier** cuenta.
-3.  Un usuario normal **NO** puede eliminar la cuenta de otro.
+### 🕹️ Rutas de Videojuegos (`/api/videogames`)
 
-## 📡 Endpoints de la API
+| Método | Endpoint | Descripción | Auth |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/` | Listar todos los juegos | No |
+| `GET` | `/:id` | Ver detalle por ID | No |
+| `GET` | `/search` | Buscar por título (Query param `?title=`) | No |
+| `GET` | `/genre/:genre` | Filtrar por género | No |
+| `GET` | `/top-rated` | Top 5 mejor valorados | No |
+| `GET` | `/random` | Obtener un juego aleatorio | No |
+| `GET` | `/bulk` | Creación masiva (InsertMany) | No |
+| `POST` | `/` | Crear videojuego (Multipart form) | No |
+| `PUT` | `/:id` | Editar videojuego | No |
+| `DELETE` | `/:id` | Eliminar videojuego (y su imagen) | No |
 
-| Método | Ruta | Descripción | Auth | Rol |
+### 👤 Rutas de Usuarios (`/api/users`)
+
+| Método | Endpoint | Descripción | Auth | Rol |
 | :--- | :--- | :--- | :--- | :--- |
-| **GAMES** |
-| `GET` | `/api/v1/games` | Obtener todos los videojuegos | No | - |
-| `POST` | `/api/v1/games` | Crear un videojuego | Sí | Admin |
-| **USERS** |
-| `POST` | `/api/v1/users/register` | Registrar nuevo usuario (con imagen) | No | - |
-| `POST` | `/api/v1/users/login` | Login de usuario | No | - |
-| `GET` | `/api/v1/users` | Ver todos los usuarios | Sí | Admin |
-| `PUT` | `/api/v1/users/add-game` | Añadir juego a la lista de jugados | Sí | Propio |
-| `DELETE` | `/api/v1/users/:id` | Eliminar usuario y su imagen | Sí | Propio/Admin |
+| `POST` | `/register` | Registrar usuario (Multipart form) | No | - |
+| `POST` | `/login` | Iniciar sesión (Devuelve Token) | No | - |
+| `GET` | `/` | Ver todos los usuarios | **Sí** | **Admin** |
+| `PATCH` | `/update-role/:id` | Cambiar rol (User/Admin) | **Sí** | **Admin** |
+| `POST` | `/add-game` | Añadir juego a "Mis juegos" | **Sí** | Propio |
+| `DELETE` | `/delete-game` | Quitar juego de "Mis juegos" | **Sí** | Propio |
+| `DELETE` | `/:id` | Eliminar cuenta (y su imagen) | **Sí** | Propio/Admin |
 
-## 📧 Entrega
+---
 
-Este proyecto se entrega como parte del Máster en Desarrollo Web.
-**Repositorio público enviado a:** antonio.rosales@thepower.education
+## 📧 Contacto y Entrega
+
+Este proyecto ha sido desarrollado como parte del Máster de Desarrollo Web.
+
+* **GitHub:** [Jorge Sanchez Gallego](https://github.com/JorgeSanchezGallego)
+* **Licencia:** ISC
