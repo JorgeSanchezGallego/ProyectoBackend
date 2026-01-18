@@ -4,7 +4,7 @@ const Schema = mongoose.Schema
 
 const videogameSchema = new Schema(
     {
-        title: {type: String, required: true, trim: true, unique: true},
+        title: {type: String, required: true, trim: true, unique: true},//Trim elimina espacios en blanco al principio y al final. Unique te asegura titulo unico
         developer: {type: String, required: true, trim: true},
         year: {type: Number, min: 1980, max: 2030, required: true},
         genre: {
@@ -21,8 +21,8 @@ const videogameSchema = new Schema(
         img: {type: String,  required: true}
     },
     {
-        timestamps: true,
-        versionKey: false
+        timestamps: true,//Crea campos createdAt y updatedAt
+        versionKey: false//Elimina el campo __v interno de mongo
     }
 )
 

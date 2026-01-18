@@ -6,24 +6,24 @@ const {deleteImgCloudinary} = require("../utils/cloudinary.utils")
 
 const registerUser = async (req, res) => {
     try {
-        const user = new User(req.body)
-        const userExist = await User.findOne({ email: user.email})
+        const user = new User(req.body) //Creamos instancia del modelo recibido 
+        const userExist = await User.findOne({ email: user.email}) //Comprobacion manual de duplicados, aunque con email unique ya lo estemos haciendo
         if (userExist){
             if (req.file) {
-                deleteImgCloudinary(req.file.path);
+                deleteImgCloudinary(req.file.path); //Si existe, borramos la foto que haya subido
             }
             return res.status(400).json("El usuario ya existe")
         }
-        if(user.videogames && user.videogames.length > 0) {
-            user.videogames = [...new Set(user.videogames.map(id => id.toString()))]
+        if(user.videogames && user.videogames.length > 0) { //Verificamos que en la peticion viene el campo videogames, y si trae al menos un elemento... si no lo saltamos
+            user.videogames = [...new Set(user.videogames.map(id => id.toString()))] //Eliminamos posibles videojuegos duplicados y pasamos el id a string por que a veces viene como objectId y tranformamos el set de vuelta a array
         }
-        user.role = "user"
-        if (req.file) {
+        user.role = "user" //Forzamos por seguridad que el role sea user
+        if (req.file) { //Gestion de la imagen subida por multer
             user.img = req.file.path;
         } else {
             return res.status(400).json("La imagen de perfil es obligatoria");
         }
-        const userDB = await user.save()
+        const userDB = await user.save() //Aqui salta el pre-save
         res.status(201).json(userDB)
     } catch (error) {
         res.status(400).json({error: "Error al registrar usuario", detalle: error.message})
@@ -33,15 +33,15 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body
-        const user = await User.findOne({email})
+        const user = await User.findOne({email}) //Busca el usuario por email
         if(!user){
-            return res.status(400).json("Contraseña o usuario incorrecto")
+            return res.status(400).json("Contraseña o usuario incorrecto") //Por seguridad no decimos si lo que falla es el email o la password
         }
-        const validPassword = bcrypt.compareSync(password, user.password)
+        const validPassword = bcrypt.compareSync(password, user.password) //Compara la contraseña en texto plano con la encriptada
         if (!validPassword){
-            return res.status(400).json("Contraseña o usuario incorrecto")
+            return res.status(400).json("Contraseña o usuario incorrecto") //Gestion de errores
         }
-        const token = generateToken(user.id, user.email)
+        const token = generateToken(user.id, user.email) //Genera el token para auth diferentes peticiones
         return res.status(200).json({token, user})
     } catch (error) {
         return res.status(400).json("Error al login")
